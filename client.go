@@ -78,17 +78,16 @@ func (c *Client) ValidateAddress(ctx context.Context, address *Address) ([]Valid
 	params := &uspsinternal.GetAddressParams{
 		StreetAddress: address.StreetAddress,
 	}
-	/*
-		if address.State == "" {
-			return nil, fmt.Errorf("state is required")
-		}
-	*/
-	if address.State != "" {
-		if len(address.State) != 2 {
-			return nil, fmt.Errorf("2 letter state abbreviation is required")
-		}
-		params.State = strings.ToUpper(address.State)
+
+	if address.State == "" {
+		return nil, fmt.Errorf("2 letter state abbreviation is required")
 	}
+
+	if len(address.State) != 2 {
+		return nil, fmt.Errorf("2 letter state abbreviation is required")
+	}
+
+	params.State = strings.ToUpper(address.State)
 
 	if address.SecondaryAddress != "" {
 		params.SecondaryAddress = &address.SecondaryAddress

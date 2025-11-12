@@ -41,6 +41,16 @@ func main() {
 		},
 		{
 			StreetAddress: "100 broadway",
+//			City:          "boulder",
+//			State:         "co",
+		},
+		{
+			StreetAddress: "100 broadway",
+//			City:          "boulder",
+			State:         "co",
+		},
+		{
+			StreetAddress: "100 broadway",
 			City:          "boulder",
 			State:         "co",
 		},
