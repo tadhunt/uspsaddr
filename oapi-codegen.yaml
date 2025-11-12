@@ -1,0 +1,5 @@
+package: uspsinternal
+generate:
+  client: true
+  models: true
+output: uspsinternal/client.gen.go
