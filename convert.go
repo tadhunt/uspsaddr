@@ -211,7 +211,7 @@ func generateUserMessage(code, text, dpvConfirmation string, hasSecondaryAddress
 			return text // Use the original USPS message
 		} else if dpvConfirmation == "S" && hasSecondaryAddress {
 			// S = Secondary information present but not confirmed
-			return "USPS does not have enough data to validate the secondary address. Please double check what you entered."
+			return "Unable to validate the secondary address (suite, apt number, etc). Please double check what you entered."
 		}
 	}
 

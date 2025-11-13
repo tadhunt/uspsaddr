@@ -68,6 +68,17 @@ func main() {
 			State:         "co",
 		},
 		{
+			StreetAddress: "1600 Pennsylvania Ave",
+			City:          "Washington",
+			State:         "DC",
+		},
+		{
+			StreetAddress: "1600 Pennsylvania Ave",
+			City:          "Washington",
+			State:         "DC",
+			ZIPCode:       "20500",
+		},
+		{
 			StreetAddress: "1600 Pennsylvania Ave NW",
 			City:          "Washington",
 			State:         "DC",

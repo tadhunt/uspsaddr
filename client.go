@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tadhunt/logger"
+
 	"github.com/tadhunt/uspsaddr/uspsinternal"
 )
 
@@ -16,6 +18,7 @@ type Client struct {
 	tokenManager *tokenManager
 	client       *uspsinternal.ClientWithResponses
 	httpClient   *http.Client
+	log          logger.CompatLogWriter
 }
 
 // NewClient creates a new USPS address validation client
@@ -26,12 +29,19 @@ func NewClient(config Config) (*Client, error) {
 		return nil, err
 	}
 
+	level := logger.LogLevel_INFO
+	if config.Debug {
+		level = logger.LogLevel_DEBUG
+	}
+	log := logger.NewCompatLogWriter(level)
+
 	// Set defaults
 	config.setDefaults()
 
 	c := &Client{
 		config:     config,
 		httpClient: &http.Client{Timeout: 30 * time.Second},
+		log:        log,
 	}
 
 	// Create token manager
@@ -52,7 +62,7 @@ func NewClient(config Config) (*Client, error) {
 			}
 			req.Header.Set("Authorization", "Bearer "+token)
 			// Debug: log the full request URL
-			fmt.Printf("DEBUG: USPS API Request URL: %s\n", req.URL.String())
+			log.Debugf("USPS API Request URL: %s\n", req.URL.String())
 			return nil
 		}),
 	)
@@ -107,20 +117,19 @@ func (c *Client) ValidateAddress(ctx context.Context, address *Address) ([]Valid
 		params.Urbanization = &address.Urbanization
 	}
 
-	// Debug logging
-	fmt.Printf("DEBUG: Calling USPS API with params:\n")
-	fmt.Printf("  StreetAddress: %q\n", params.StreetAddress)
-	fmt.Printf("  State: %q\n", params.State)
+	c.log.Debugf("Calling USPS API with params:\n")
+	c.log.Debugf("  StreetAddress: %q\n", params.StreetAddress)
+	c.log.Debugf("  State: %q\n", params.State)
 	if params.SecondaryAddress != nil {
-		fmt.Printf("  SecondaryAddress: %q\n", *params.SecondaryAddress)
+		c.log.Debugf("  SecondaryAddress: %q\n", *params.SecondaryAddress)
 	} else {
-		fmt.Printf("  SecondaryAddress: nil\n")
+		c.log.Debugf("  SecondaryAddress: nil\n")
 	}
 	if params.City != nil {
-		fmt.Printf("  City: %q\n", *params.City)
+		c.log.Debugf("  City: %q\n", *params.City)
 	}
 	if params.ZIPCode != nil {
-		fmt.Printf("  ZIPCode: %q\n", *params.ZIPCode)
+		c.log.Debugf("  ZIPCode: %q\n", *params.ZIPCode)
 	}
 
 	// Call USPS API
@@ -130,9 +139,9 @@ func (c *Client) ValidateAddress(ctx context.Context, address *Address) ([]Valid
 	}
 
 	// Debug: dump the response
-	fmt.Printf("DEBUG: USPS API Response Status: %d\n", resp.StatusCode())
+	c.log.Debugf("USPS API Response Status: %d\n", resp.StatusCode())
 	if resp.Body != nil {
-		fmt.Printf("DEBUG: USPS API Response Body: %s\n", string(resp.Body))
+		c.log.Debugf("USPS API Response Body: %s\n", string(resp.Body))
 	}
 
 	// Handle error responses
