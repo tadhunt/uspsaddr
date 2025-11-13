@@ -30,7 +30,7 @@ func NewClient(config Config) (*Client, error) {
 	}
 
 	level := logger.LogLevel_INFO
-	if config.Debug {
+	if config.LogLevel == "debug" {
 		level = logger.LogLevel_DEBUG
 	}
 	log := logger.NewCompatLogWriter(level)

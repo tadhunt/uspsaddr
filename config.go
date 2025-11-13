@@ -18,7 +18,7 @@ type Config struct {
 	// Testing: https://apis-tem.usps.com/oauth2/v3/token
 	TokenURL string
 
-	Debug bool
+	LogLevel string
 }
 
 // Validate checks if the config is valid
