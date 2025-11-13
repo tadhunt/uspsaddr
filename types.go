@@ -55,6 +55,9 @@ type ValidationResult struct {
 type Correction struct {
 	Code string
 	Text string
+	// UserMessage provides a user-friendly explanation of the correction
+	// This is derived from the correction code and DPV confirmation
+	UserMessage string
 }
 
 // Match indicates if an address is an exact match

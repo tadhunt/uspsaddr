@@ -34,6 +34,22 @@ func main() {
 	// Example addresses to validate
 	addresses := []*uspsaddr.Address{
 		{
+			StreetAddress: "1820 mary",
+			City:          "boulder",
+			State:         "co",
+		},
+		{
+			StreetAddress:    "1820 mary",
+			SecondaryAddress: "apt 15",
+			City:             "boulder",
+			State:            "co",
+		},
+		{
+			StreetAddress: "1820 mary apt 15",
+			City:          "boulder",
+			State:         "co",
+		},
+		{
 			Firm:          "Chipotle",
 			StreetAddress: "28th",
 			City:          "boulder",
@@ -41,12 +57,9 @@ func main() {
 		},
 		{
 			StreetAddress: "100 broadway",
-//			City:          "boulder",
-//			State:         "co",
 		},
 		{
 			StreetAddress: "100 broadway",
-//			City:          "boulder",
 			State:         "co",
 		},
 		{
@@ -67,6 +80,13 @@ func main() {
 			ZIPCode:       "10118",
 		},
 		{
+			StreetAddress:    "350 Fifth Avenue",
+			SecondaryAddress: "Suite 200",
+			City:             "New York",
+			State:            "NY",
+			ZIPCode:          "10118",
+		},
+		{
 			StreetAddress: "1 Apple Park Way",
 			City:          "Cupertino",
 			State:         "CA",
@@ -76,7 +96,7 @@ func main() {
 
 	for i, address := range addresses {
 		fmt.Printf("\n=== Example %d ===\n", i+1)
-		fmt.Printf("Input: %s, %s, %s %s\n", address.StreetAddress, address.City, address.State, address.ZIPCode)
+		fmt.Printf("Input: %s, %s, %s, %s %s\n", address.StreetAddress, address.SecondaryAddress, address.City, address.State, address.ZIPCode)
 
 		results, err := client.ValidateAddress(context.Background(), address)
 		if err != nil {
@@ -124,6 +144,9 @@ func main() {
 				fmt.Println("\nCorrections Needed:")
 				for _, c := range result.Corrections {
 					fmt.Printf("  [%s] %s\n", c.Code, c.Text)
+					if c.UserMessage != "" && c.UserMessage != c.Text {
+						fmt.Printf("       User Message: %s\n", c.UserMessage)
+					}
 				}
 			}
 

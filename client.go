@@ -51,6 +51,8 @@ func NewClient(config Config) (*Client, error) {
 				return fmt.Errorf("failed to get access token: %w", err)
 			}
 			req.Header.Set("Authorization", "Bearer "+token)
+			// Debug: log the full request URL
+			fmt.Printf("DEBUG: USPS API Request URL: %s\n", req.URL.String())
 			return nil
 		}),
 	)
@@ -105,10 +107,32 @@ func (c *Client) ValidateAddress(ctx context.Context, address *Address) ([]Valid
 		params.Urbanization = &address.Urbanization
 	}
 
+	// Debug logging
+	fmt.Printf("DEBUG: Calling USPS API with params:\n")
+	fmt.Printf("  StreetAddress: %q\n", params.StreetAddress)
+	fmt.Printf("  State: %q\n", params.State)
+	if params.SecondaryAddress != nil {
+		fmt.Printf("  SecondaryAddress: %q\n", *params.SecondaryAddress)
+	} else {
+		fmt.Printf("  SecondaryAddress: nil\n")
+	}
+	if params.City != nil {
+		fmt.Printf("  City: %q\n", *params.City)
+	}
+	if params.ZIPCode != nil {
+		fmt.Printf("  ZIPCode: %q\n", *params.ZIPCode)
+	}
+
 	// Call USPS API
 	resp, err := c.client.GetAddressWithResponse(ctx, params)
 	if err != nil {
 		return nil, fmt.Errorf("USPS API request failed: %w", err)
+	}
+
+	// Debug: dump the response
+	fmt.Printf("DEBUG: USPS API Response Status: %d\n", resp.StatusCode())
+	if resp.Body != nil {
+		fmt.Printf("DEBUG: USPS API Response Body: %s\n", string(resp.Body))
 	}
 
 	// Handle error responses

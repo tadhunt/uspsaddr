@@ -13,6 +13,15 @@ func convertResponse(resp *uspsinternal.AddressResponse) ValidationResult {
 		result.Address = convertAddress(resp.Address, resp.Firm)
 	}
 
+	// Get DPV confirmation for generating user messages
+	dpvConfirmation := ""
+	if resp.AdditionalInfo != nil && resp.AdditionalInfo.DPVConfirmation != nil {
+		dpvConfirmation = string(*resp.AdditionalInfo.DPVConfirmation)
+	}
+
+	// Check if secondary address is present in response
+	hasSecondaryAddress := resp.Address != nil && resp.Address.SecondaryAddress != nil && *resp.Address.SecondaryAddress != ""
+
 	// Convert corrections
 	if resp.Corrections != nil {
 		result.Corrections = make([]Correction, 0, len(*resp.Corrections))
@@ -21,9 +30,11 @@ func convertResponse(resp *uspsinternal.AddressResponse) ValidationResult {
 			text := stringValue(c.Text)
 			// Only add non-empty corrections
 			if code != "" || text != "" {
+				userMessage := generateUserMessage(code, text, dpvConfirmation, hasSecondaryAddress)
 				result.Corrections = append(result.Corrections, Correction{
-					Code: code,
-					Text: text,
+					Code:        code,
+					Text:        text,
+					UserMessage: userMessage,
 				})
 			}
 		}
@@ -189,4 +200,21 @@ func stringValue(s *string) string {
 		return ""
 	}
 	return *s
+}
+
+// generateUserMessage creates a user-friendly message based on correction code and DPV confirmation
+func generateUserMessage(code, text, dpvConfirmation string, hasSecondaryAddress bool) string {
+	// Handle correction code 32 (more information needed)
+	if code == "32" {
+		if dpvConfirmation == "D" {
+			// D = Missing secondary information
+			return text // Use the original USPS message
+		} else if dpvConfirmation == "S" && hasSecondaryAddress {
+			// S = Secondary information present but not confirmed
+			return "USPS does not have enough data to validate the secondary address. Please double check what you entered."
+		}
+	}
+
+	// For all other cases, use the original USPS text
+	return text
 }
